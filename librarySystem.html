@@ -1,0 +1,117 @@
+<script src="simpleTest.js"></script>
+<script>
+
+(function(){
+	
+	var libraryStorage = {};
+	
+	function librarySystem(libraryName, dependencyArray, callback) {
+
+		//if only libraryName passed in, return library
+		if (arguments.length == 1) {
+			var library =  libraryStorage[libraryName].library;
+
+			if (typeof library === 'function') {
+
+				var arrayToApply = libraryStorage[libraryName].dependencies.map(function(dependency){
+					return librarySystem(dependency)
+				})
+				libraryStorage[libraryName].library = library.apply(null, arrayToApply);
+
+			} 
+
+			return libraryStorage[libraryName].library;
+			
+		}
+		
+		else {
+				
+			libraryStorage[libraryName] = {
+											library: callback,
+											dependencies: dependencyArray
+										   }
+
+		}
+
+	}
+
+	function clearLibrary() {
+		libraryStorage = {};
+	}
+
+	window.clearLibrary =  clearLibrary;
+
+	window.librarySystem =  librarySystem
+
+
+
+
+})()
+
+tests({
+  'Library callback should have access to dependencies' : function(){
+  	clearLibrary()
+
+	librarySystem('name', [], function() {
+	  return 'Gordon';
+	});
+
+	librarySystem('company', [], function() {
+	  return 'Watch and Code';
+	});
+
+	librarySystem('workBlurb', ['name', 'company'], function(name, company) {
+	  return name + ' works at ' + company;
+	});
+
+	eq(librarySystem('workBlurb'),'Gordon works at Watch and Code')
+
+  },
+
+  'It should be able to load libraries with dependencies out of order': function() {
+
+  	clearLibrary()
+
+	librarySystem('workBlurb', ['name', 'company'], function(name, company) {
+	  return name + ' works at ' + company;
+	});
+
+	librarySystem('name', [], function() {
+	  return 'Gordon';
+	});
+
+	librarySystem('company', [], function() {
+	  return 'Watch and Code';
+	});
+
+	eq(librarySystem('workBlurb'),'Gordon works at Watch and Code') 
+
+  },
+  'Callback should only run once' : function() {
+  	clearLibrary()
+  	var numberOfTimesCallbackRun = 0;
+
+ 	librarySystem('workBlurb', ['name', 'company'], function(name, company) {
+ 	  numberOfTimesCallbackRun++;
+	  return name + ' works at ' + company;
+	});
+
+	librarySystem('name', [], function() {
+	  return 'Gordon';
+	});
+
+	librarySystem('company', [], function() {
+	  return 'Watch and Code';
+	});
+
+	librarySystem('workBlurb');
+	librarySystem('workBlurb');
+	eq(numberOfTimesCallbackRun,1)
+
+
+
+  }
+
+
+});
+</script>
