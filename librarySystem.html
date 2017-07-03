@@ -8,15 +8,15 @@
 	function librarySystem(libraryName, dependencyArray, callback) {
 
 		//if only libraryName passed in, return library
-		if (arguments.length == 1) {
-			var library =  libraryStorage[libraryName].library;
+		if (arguments.length === 1) {
+			var libraryObj =  libraryStorage[libraryName];
 
-			if (typeof library === 'function') {
+			if (libraryObj.library === null) {
 
-				var arrayToApply = libraryStorage[libraryName].dependencies.map(function(dependency){
+				var arrayToApply = libraryObj.dependencies.map(function(dependency){
 					return librarySystem(dependency)
 				})
-				libraryStorage[libraryName].library = library.apply(null, arrayToApply);
+				libraryObj.library = libraryObj.libraryCallback.apply(null, arrayToApply);
 
 			} 
 
@@ -26,8 +26,8 @@
 		
 		else {
 				
-			libraryStorage[libraryName] = {
-											library: callback,
+			libraryStorage[libraryName] = {	library: null,
+											libraryCallback: callback,
 											dependencies: dependencyArray
 										   }
 
