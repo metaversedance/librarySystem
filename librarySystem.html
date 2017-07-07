@@ -1,4 +1,4 @@
-<script src="simpleTest.js"></script>
+<script src="../simpleTest.js"></script>
 <script>
 
 (function(){
@@ -7,10 +7,10 @@
 	
 	function librarySystem(libraryName, dependencyArray, callback) {
 
-		//if only libraryName passed in, return library
+	
 		if (arguments.length === 1) {
 			var libraryObj =  libraryStorage[libraryName];
-
+			
 			if (libraryObj.library === null) {
 
 				var arrayToApply = libraryObj.dependencies.map(function(dependency){
@@ -22,9 +22,7 @@
 
 			return libraryStorage[libraryName].library;
 			
-		}
-		
-		else {
+		} else {
 				
 			libraryStorage[libraryName] = {	library: null,
 											libraryCallback: callback,
@@ -68,7 +66,7 @@ tests({
 
   },
 
-  'It should be able to load libraries with dependencies out of order': function() {
+  'librarySystem should be able to load libraries with dependencies out of order': function() {
 
   	clearLibrary()
 
